@@ -16,6 +16,7 @@ client.on('err', err => {throw err;});
 //   res.status(200).json();
 // });
 app.get('/location', locationHandler);
+app.get('/cities', citiesHandler);
 // app.get('/weather', weatherHandler);
 // app.get('/trails', trailsHandler);
 // app.use('*', notFoundHandler);
@@ -53,6 +54,15 @@ app.get('/location', (req, res) => {
   })
   .catch( err => console.error(err));
 });
+
+function citiesHandler(req, res) {
+  let SQL = 'SELECT * FROM cities';
+  client.query(SQL)
+    .then( results => {
+      res.status(200).json(results.rows);
+    })
+    .catch( err => console.err(err));
+}
 
 
 client.connect()
