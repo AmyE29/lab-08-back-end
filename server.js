@@ -1,3 +1,4 @@
+/* eslint-disable strict */
 require('dotenv').config();
 const express = require('express');
 const pg = require('pg');
@@ -32,7 +33,7 @@ function locationHandler (request, response) {
       response.status(200).json(locationData);
     })
     .catch(error => errorHandler(error, request, response));
- }
+}
 
 function Location(city, geoData) {
   this.search_query = city;
@@ -48,10 +49,10 @@ app.get('/locationData', (req, res) => {
   let SQL = 'INSERT INTO cities (city_name, latitude, longitude) VALUES ($1, $2, $3) RETURNING *';
   let safeValues = [cityName, longitude, latitude];
   client.query(SQL, safeValues)
-  .then( results => {
-    res.status(200).json(results);
-  })
-  .catch( err => console.error(err));
+    .then( results => {
+      res.status(200).json(results);
+    })
+    .catch( err => console.error(err));
 });
 
 
@@ -59,8 +60,8 @@ client.connect()
   .then(() => {
     app.listen(PORT, () => {
       console.log(`listening on ${PORT}`);
-    })
+    });
   })
   .catch(err => {
-    throw `PG startup error ${err.message}`
-  })
+    throw `PG startup error ${err.message}`;
+  });
