@@ -1,6 +1,9 @@
+'use strict';
+
 require('dotenv').config();
 const express = require('express');
 const pg = require('pg');
+const superagent = require('superagent');
 
 const app = express();
 const PORT = process.env.PORT;
@@ -13,6 +16,7 @@ client.on('err', err => {throw err;});
 //   res.status(200).json();
 // });
 app.get('/location', locationHandler);
+app.get('/cities', citiesHandler);
 // app.get('/weather', weatherHandler);
 // app.get('/trails', trailsHandler);
 // app.use('*', notFoundHandler);
@@ -25,10 +29,7 @@ function locationHandler (request, response) {
   // const geoData = require('./data/geo.json');
   superagent.get(url)
     .then(data => {
-      console.log(request.query.data);
-      console.log(data.body);
       let locationData = new Location(request.query.data, data.body);
-      console.log(locationData);
       response.status(200).json(locationData);
     })
     .catch(error => errorHandler(error, request, response));
@@ -41,10 +42,10 @@ function Location(city, geoData) {
   this.longitude = geoData.results[0].geometry.location.lng;
 
 }
-app.get('/locationData', (req, res) => {
-  let cityName = req.query.location;
-  let longitude = req.query.longitude;
-  let latitude = req.query.latitude;
+app.get('/location', (req, res) => {
+  let cityName = geoData.results[0].formatted_address;
+  let longitude = geoData.results[0].geometry.location.lat;
+  let latitude = geoData.results[0].geometry.location.lng;
   let SQL = 'INSERT INTO cities (city_name, latitude, longitude) VALUES ($1, $2, $3) RETURNING *';
   let safeValues = [cityName, longitude, latitude];
   client.query(SQL, safeValues)
@@ -53,6 +54,15 @@ app.get('/locationData', (req, res) => {
   })
   .catch( err => console.error(err));
 });
+
+function citiesHandler(req, res) {
+  let SQL = 'SELECT * FROM cities';
+  client.query(SQL)
+    .then( results => {
+      res.status(200).json(results.rows);
+    })
+    .catch( err => console.err(err));
+}
 
 
 client.connect()
